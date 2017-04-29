@@ -1,0 +1,109 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-view2">
+  <template>
+    <style include="shared-styles">
+       :host {
+        display: block;
+        padding: 10px;
+      }
+
+      .card-container{
+        display: flex;
+        flex-direction: row;
+      }
+
+      .row{
+        width: calc(50% - 24px);
+        margin: 0 12px;
+      }
+      
+      paper-card {
+        width: calc(100% - 12px);
+        min-width: 300px;
+      }
+      .profile .container{
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+      }
+      .profile .image{
+        margin-right: 12px;
+        width: 56px;
+        height: 56px;
+        background-size: cover;
+        border-radius: 50%;
+      }
+      .profile h2{
+        font-weight: 500;
+        font-size: 20px;
+        color: rgba(0,0,0,0.9);
+      }
+      .profile iron-icon{
+        color: rgba(0,0,0,0.7);
+        margin-right: 4px;
+      }
+      @media screen and (max-width: 860px){
+        .card-container{
+          flex-direction: column-reverse;
+        }
+        .row{
+          box-sizing: border-box;
+          width: auto;
+        }
+      }
+    </style>
+
+    <div class="card-container">
+      <div class="row">
+        
+        <paper-card elevation="1" animated-shadow="false">
+          <div class="card-content">
+            <h1>Sunflower</h1>
+            <p>Material design: Snackbars &amp; toasts paper-toast provides a subtle notification toast. Only one paper-toast will be visible on screen. Use opened to show the toast:</p>
+            <p>Material design: Snackbars &amp; toasts paper-toast provides a subtle notification toast. Only one paper-toast will be visible on screen. Use opened to show the toast:</p>
+            <p>Material design: Snackbars &amp; toasts paper-toast provides a subtle notification toast. Only one paper-toast will be visible on screen. Use opened to show the toast:</p>
+          </div>
+        </paper-card>
+
+        <paper-card elevation="1" animated-shadow="false">
+          <div class="card-content">
+            <div class="profile">
+              <div class="container">
+                <div class="image" style="background-image: url(https://scontent.fkul8-1.fna.fbcdn.net/v/t1.0-9/16998744_10212075208257799_7164651129824941120_n.jpg?oh=1be7fd8c9b2fc26ba9904c4618d2118c&oe=598207D8)"></div>
+                <h2>Panda Liew</h2>
+              </div>
+              <div class="container">
+                <iron-icon icon="my-icons:email"></iron-icon>
+                <span>xiongmau@panda.com</span>
+              </div>
+            </div>
+          </div>
+        </paper-card>        
+        
+      </div>
+      <div class="row">
+        <paper-card image="http://ghk.h-cdn.co/assets/15/33/980x490/landscape-1439490128-plants.jpg" elevation="1" animated-shadow="false"></paper-card>
+      </div>      
+    </div>
+  </template>
+
+
+  <script>
+    Polymer({
+      is: 'my-view2',
+    });
+  </script>
+</dom-module>

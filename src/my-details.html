@@ -1,0 +1,243 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
+<link rel="import" href="../bower_components/google-map/google-map-marker.html">
+<link rel="import" href="../bower_components/polymer-simple-slider/simple-slider.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-details">
+  <template>
+    <style include="shared-styles">
+       :host {
+        display: block;
+        padding: 10px;
+      }
+      
+      .card-container {
+        display: flex;
+        flex-direction: row;
+      }
+      
+      .nav {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 12px 18px;
+        box-sizing: border-box;
+      }
+      
+      .row {
+        width: calc(50% - 24px);
+        margin: 0 12px;
+      }
+      
+      paper-card {
+        width: calc(100% - 12px);
+        min-width: 300px;
+      }
+      
+      .profile .container {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+      }
+      
+      .profile .image {
+        margin-right: 12px;
+        width: 56px;
+        height: 56px;
+        background-size: cover;
+        border-radius: 50%;
+      }
+      
+      .profile h2 {
+        font-weight: 500;
+        font-size: 20px;
+        color: rgba(0, 0, 0, 0.9);
+      }
+      
+      .profile iron-icon {
+        color: rgba(0, 0, 0, 0.7);
+        margin-right: 4px;
+      }
+      
+      .action-btn {
+        width: calc(100% - 4px);
+        display: flex;
+        box-sizing: border-box;
+        margin: 6px auto;
+      }
+      
+      paper-button {
+        width: 100%;
+        background: white;
+      }
+      
+      .approve,
+      .reject {
+        color: white;
+        font-weight: 500;
+      }
+      
+      .approve {
+        background: #4CAF50;
+      }
+      
+      .reject {
+        background: #F44336;
+      }
+      
+      paper-button iron-icon {
+        margin-right: 4px;
+        margin-bottom: 2px;
+        vertical-align: middle;
+      }
+      
+      google-map {
+        height: 500px;
+        margin: 24px 6px;
+      }
+      
+      google-map-marker img {
+        width: 100%;
+      }
+      
+      .image-scroll {
+        margin: 12px 6px;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
+      .image-scroll img {
+        display: inline;
+        height: 300px;
+      }
+      
+      @media screen and (max-width: 860px) {
+        .card-container {
+          flex-direction: column-reverse;
+        }
+        .row {
+          box-sizing: border-box;
+          width: auto;
+        }
+      }
+    </style>
+
+    <div class="card-container">
+      <div class="row">
+        <paper-card elevation="1" animated-shadow="false">
+          <div class="card-content">
+            <h1>{{data.name}}</h1>
+            <p>{{data.description}}</p>
+            <p>Genus: {{data.genus}}</p>
+            <p>Taxonomy: {{data.taxonomy}}</p>
+          </div>
+        </paper-card>
+
+        <paper-card elevation="1" animated-shadow="false">
+          <div class="card-content">
+            <div class="profile">
+              <div class="container">
+                <div class="image" style="background-image: url({{profile.profilepic}})"></div>
+                <h2>{{profile.user_id}}</h2>
+              </div>
+              <div class="container">
+                <iron-icon icon="my-icons:email"></iron-icon>
+                <span>{{profile.email}}</span>
+              </div>
+            </div>
+          </div>
+        </paper-card>
+
+      </div>
+      <div class="row">
+        <div class="image-scroll">
+          <template is="dom-repeat" items="{{_toArray(data.images)}}">
+            <img src="{{item.value.url}}"> {{item.url}}
+          </template>
+        </div>
+        <google-map zoom=1 fit-to-marker api-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc">
+          <template is="dom-repeat" items="{{_toArray(data.units)}}">
+            <google-map-marker latitude="{{item.value.latitude}}" longitude="{{item.value.longitude}}">
+              <img src="{{item.value.url}}">
+            </google-map-marker>
+          </template>
+        </google-map>
+        <div class="action-btn">
+          <paper-button class="approve" raised on-tap="approve">
+            <iron-icon icon="my-icons:done"></iron-icon>
+            <span>APPROVE</span>
+          </paper-button>
+          <paper-button class="reject" raised on-tap="reject">
+            <iron-icon icon="my-icons:cancel"></iron-icon>
+            <span>REJECT</span>
+          </paper-button>
+        </div>
+
+      </div>
+    </div>
+  </template>
+
+
+  <script>
+    Polymer({
+      is: 'my-details',
+
+      properties: {
+        route: {
+          notify: true,
+          observer: '_routeChanged'
+        }
+      },
+
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return {
+            key: key,
+            value: obj[key]
+          }
+        });
+      },
+
+      _getFirstImage: function (image) {
+        console.log(image);
+      },
+
+      approve: function () {
+        var approveRef = this.firebase.database().ref('plants/' + this.route.id);
+        approveRef.update({ status: 'Approved' });
+      },
+      reject: function () {
+        var rejectRef = this.firebase.database().ref('plants/' + this.route.id);
+        rejectRef.update({ status: 'Rejected' });
+      },
+
+      _routeChanged: function () {
+        if (this.route.id) {
+          var plantRef = this.firebase.database().ref('plants/' + this.route.id);
+          plantRef.once('value', function (snapshot) {
+            this.data = snapshot.val();
+            var userRef = this.firebase.database().ref('users/' + this.data.user);
+            userRef.once('value', function (snapshot) {
+              this.profile = snapshot.val();
+            }.bind(this))
+          }.bind(this));
+        }
+        else {
+          console.log('empty leh')
+        }
+      }
+    });
+  </script>
+</dom-module>

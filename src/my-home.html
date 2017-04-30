@@ -1,0 +1,179 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-home">
+  <template>
+    <style include="shared-styles">
+       :host {
+        display: block;
+      }
+
+      paper-card .card-image{
+        height: 280px;
+        background-position: center;
+        background-size: cover; 
+      }
+
+      paper-card a{
+        text-decoration: none;
+      }
+
+      paper-fab {
+        position: fixed;
+        bottom: 0;
+        z-index: 1;
+        margin: 32px;
+        right: 0;
+      }
+      
+      paper-button {
+        margin: 0;
+      }
+      
+      .filter {
+        align-items: center;
+        justify-content: flex-end;
+        display: flex;
+        max-width: 960px;
+        margin: 0 auto;
+        padding-bottom: 12px;
+      }
+      
+      .filter iron-icon {
+        margin: 14px 0 0 6px;
+      }
+      
+      .approve,
+      .reject,
+      .more {
+        font-weight: 500;
+      }
+      
+      .approve {
+        color: #4CAF50;
+      }
+      
+      .reject {
+        color: #F44336;
+      }
+      
+      .more {
+        color: rgba(0, 0, 0, 0.85)
+      }
+      
+      @media screen and (max-width: 860px) {
+        paper-card {
+          width: 100%;
+        }
+        paper-fab{
+          margin: 24px;
+        }
+      }
+    </style>
+
+
+    <a href="/create">
+      <paper-fab icon="my-icons:add"></paper-fab>
+    </a>
+
+    <paper-toast id="toast" text="Hello world!"></paper-toast>
+
+    <!--<div class="filter">
+
+      <paper-dropdown-menu>
+        <paper-listbox class="dropdown-content" selected="1">
+          <paper-item>allosaurus</paper-item>
+          <paper-item>brontosaurus</paper-item>
+          <paper-item>carcharodontosaurus</paper-item>
+          <paper-item>diplodocus</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <iron-icon icon="my-icons:filter-list"></iron-icon>
+
+    </div>-->
+
+    <div class="card-container">
+      <template is="dom-repeat" items="{{_toArray(data)}}" as="item">
+        <paper-card  elevation="1" animated-shadow="false">
+          <div class="card-image" style$="background-image:url({{_getFirstImage(item.value.images)}})"></div>
+          <div class="card-content">
+            <h1>{{item.value.name}}</h1>
+          </div>
+          <div class="card-actions">
+            <paper-button class="approve" on-tap="approve">APPROVE</paper-button>
+            <paper-button class="reject" on-tap="reject">REJECT</paper-button>
+            <a href="/details/{{item.key}}">
+              <paper-button class="more">MORE INFO</paper-button>
+            </a>
+          </div>
+        </paper-card>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'my-home',
+
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return {
+            key: key,
+            value: obj[key]
+          }
+        });
+      },
+
+      _getFirstImage: function(item){
+        if (item){
+          return item[Object.keys(item)[0]].url;
+        }
+        else{
+          return "http://www.aviatorcameragear.com/wp-content/uploads/2012/07/placeholder.jpg"
+        }
+      },
+
+      approve: function (event) {
+        var approveRef = this.firebase.database().ref('plants/' + event.model.item.key);
+        approveRef.update({status: 'Approved'});
+        this.$.toast.text = "Approved!";
+        this.$.toast.show();
+      },
+      reject: function () {
+        var rejectRef = this.firebase.database().ref('plants/' + event.model.item.key);
+        rejectRef.update({status: 'Rejected'});
+        this.$.toast.text = "Rejected!";
+        this.$.toast.show();
+      },
+
+      ready: function () {
+        var plantRef = this.firebase.database().ref('plants');
+        plantRef.on('value', function (snapshot) {
+          this.data = snapshot.val();
+        }.bind(this));
+      },
+
+
+
+    });
+  </script>
+</dom-module>

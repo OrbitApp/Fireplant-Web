@@ -1,0 +1,107 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-create">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+      .container{
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .container paper-card{
+        width: calc(100% - 12px);
+      }
+      paper-input{
+        max-width: 680px;
+      }
+      label{
+        margin: 24px 0;
+        display: block;        
+      }
+      label span{
+        display: block;
+        width: 100%;
+        margin-bottom: 4px;
+      }
+    </style>
+
+    <div class="container">
+
+      <form is="iron-form" id="form">
+    
+        <paper-card heading="Create new plant" image="" elevation="1" animated-shadow="false">
+          <div class="card-content">
+            <paper-input name="name" label="Name" required></paper-input>
+            <paper-input name="taxonomy" label="Taxonomy" required></paper-input>
+            <paper-input name="genus" label="Genus" required></paper-input>
+            <paper-input name="description" label="Description" required></paper-input>
+            <paper-input name="latitude" label="Latitude" required></paper-input>
+            <paper-input name="longitude" label="Longitude" required></paper-input>
+            <label>
+              <span>Upload photo:</span>
+              <input id="upload" type="file" name="pic" accept="image/*">
+            </label>
+          </div>
+          <div class="card-actions">
+            <paper-button on-tap="submit">SUBMIT</paper-button>
+          </div>
+        </paper-card>
+
+      </form>
+    </div>
+    
+  </template>
+
+  <script>
+    Polymer({
+      is: 'my-create',
+
+      submit: function(){
+        var imageUrl;
+        var form = this.$.form;
+        file = this.$.upload.files[0];
+        if (form.validate() && file){
+          var storageRef = this.firebase.storage().ref();
+          var imageRef = storageRef.child('plants/' + file.name).put(file);
+          imageRef.on('state_changed', function(snapshot){}, function(error){},function(){
+            var imageUrl = imageRef.snapshot.downloadURL;
+            data = form.serialize();
+            latitude = data.latitude;
+            longitude = data.longitude;
+            delete data.pic;
+            delete data.latitude;
+            delete data.longitude;
+            var postKey = this.firebase.database().ref().child('plants').push().key;
+            firebase.database().ref('/plants/' + postKey).set(data);
+            firebase.database().ref('/plants/' + postKey + '/units/').push({latitude: latitude, longitude: longitude, url: imageUrl});            
+            window.history.pushState({}, null, '/home');
+            window.dispatchEvent(new CustomEvent('location-changed'));
+            form.reset();
+          }.bind(this))
+        }
+      }
+    });
+
+    
+  </script>
+</dom-module>
